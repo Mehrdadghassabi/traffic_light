@@ -1,0 +1,243 @@
+
+tl.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000122  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  00800060  00000176  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000030  00000000  00000000  00000176  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000001a8  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000030  00000000  00000000  000001e4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   0000079d  00000000  00000000  00000214  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 0000063f  00000000  00000000  000009b1  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   000002fa  00000000  00000000  00000ff0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000044  00000000  00000000  000012ec  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    0000034d  00000000  00000000  00001330  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    000001c5  00000000  00000000  0000167d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000038  00000000  00000000  00001842  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   8:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  10:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  14:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  18:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  1c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  20:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  24:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  28:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  2c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  30:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  34:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  38:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  3c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  40:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  44:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  48:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  4c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  50:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+  60:	0e 94 4f 00 	call	0x9e	; 0x9e <main>
+  64:	0c 94 8f 00 	jmp	0x11e	; 0x11e <_exit>
+
+00000068 <__bad_interrupt>:
+  68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000006c <ADC_Init>:
+void ADC_Init()
+{
+	/*
+	Thanks to https://www.electronicwings.com/avr-atmega/atmega1632-adc
+	*/
+	DDRA=0x0;			/* Make ADC port as input */
+  6c:	1a ba       	out	0x1a, r1	; 26
+	ADCSRA = 0x87;			/* Enable ADC, fr/128  */
+  6e:	87 e8       	ldi	r24, 0x87	; 135
+  70:	86 b9       	out	0x06, r24	; 6
+	ADMUX = 0x40;			/* Vref: Avcc, ADC channel: 0 */
+  72:	80 e4       	ldi	r24, 0x40	; 64
+  74:	87 b9       	out	0x07, r24	; 7
+  76:	08 95       	ret
+
+00000078 <ADC_Read>:
+	Thanks to https://www.electronicwings.com/avr-atmega/atmega1632-adc
+	*/
+	
+	int Ain,AinLow;
+	
+	ADMUX=ADMUX|(channel & 0x0f);	/* Set input channel to read */
+  78:	97 b1       	in	r25, 0x07	; 7
+  7a:	8f 70       	andi	r24, 0x0F	; 15
+  7c:	98 2b       	or	r25, r24
+  7e:	97 b9       	out	0x07, r25	; 7
+
+	ADCSRA |= (1<<ADSC);		/* Start conversion */
+  80:	36 9a       	sbi	0x06, 6	; 6
+	while((ADCSRA&(1<<ADIF))==0);	/* Monitor end of conversion interrupt */
+  82:	34 9b       	sbis	0x06, 4	; 6
+  84:	fe cf       	rjmp	.-4      	; 0x82 <ADC_Read+0xa>
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  86:	8d e0       	ldi	r24, 0x0D	; 13
+  88:	8a 95       	dec	r24
+  8a:	f1 f7       	brne	.-4      	; 0x88 <ADC_Read+0x10>
+  8c:	00 00       	nop
+	
+	_delay_us(10);
+	AinLow = (int)ADCL;		/* Read lower byte*/
+  8e:	24 b1       	in	r18, 0x04	; 4
+	Ain = (int)ADCH*256;		/* Read higher 2 bits and 
+  90:	85 b1       	in	r24, 0x05	; 5
+  92:	90 e0       	ldi	r25, 0x00	; 0
+  94:	98 2f       	mov	r25, r24
+  96:	88 27       	eor	r24, r24
+					Multiply with weight */
+	Ain = Ain + AinLow;				
+	return(Ain);			/* Return digital value*/
+}
+  98:	82 0f       	add	r24, r18
+  9a:	91 1d       	adc	r25, r1
+  9c:	08 95       	ret
+
+0000009e <main>:
+
+main()
+{
+	int value; //int to store ADC value
+	int delay_time = 150;
+	DDRD|=(1<<0)|(1<<1)|(1<<3)|(1<<4)|(1<<6)|(1<<7);
+  9e:	81 b3       	in	r24, 0x11	; 17
+  a0:	8b 6d       	ori	r24, 0xDB	; 219
+  a2:	81 bb       	out	0x11, r24	; 17
+	DDRC|=(1<<0);
+  a4:	a0 9a       	sbi	0x14, 0	; 20
+		    ADC_Init();
+			
+			value = ADC_Read(0);
+
+			
+			 PORTD = (1<<0)|(1<<1);
+  a6:	0f 2e       	mov	r0, r31
+  a8:	f3 e0       	ldi	r31, 0x03	; 3
+  aa:	ff 2e       	mov	r15, r31
+  ac:	f0 2d       	mov	r31, r0
+			 for(int k=0 ; k<value ; k++){
+			_delay_ms(1);}
+			
+			PORTD = (1<<3)|(1<<4);
+  ae:	08 e1       	ldi	r16, 0x18	; 24
+			_delay_ms(1000);
+			
+			PORTD = (1<<6)|(1<<7);
+  b0:	10 ec       	ldi	r17, 0xC0	; 192
+			for(int k=0 ; k<1000-value ; k++){
+  b2:	c8 ee       	ldi	r28, 0xE8	; 232
+  b4:	d3 e0       	ldi	r29, 0x03	; 3
+	DDRD|=(1<<0)|(1<<1)|(1<<3)|(1<<4)|(1<<6)|(1<<7);
+	DDRC|=(1<<0);
+    //PORTD = 0b00000000;
+	while (1)
+	{
+		    ADC_Init();
+  b6:	0e 94 36 00 	call	0x6c	; 0x6c <ADC_Init>
+			
+			value = ADC_Read(0);
+  ba:	80 e0       	ldi	r24, 0x00	; 0
+  bc:	0e 94 3c 00 	call	0x78	; 0x78 <ADC_Read>
+
+			
+			 PORTD = (1<<0)|(1<<1);
+  c0:	f2 ba       	out	0x12, r15	; 18
+			 for(int k=0 ; k<value ; k++){
+  c2:	18 16       	cp	r1, r24
+  c4:	19 06       	cpc	r1, r25
+  c6:	6c f4       	brge	.+26     	; 0xe2 <main+0x44>
+  c8:	20 e0       	ldi	r18, 0x00	; 0
+  ca:	30 e0       	ldi	r19, 0x00	; 0
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  cc:	e7 ee       	ldi	r30, 0xE7	; 231
+  ce:	f3 e0       	ldi	r31, 0x03	; 3
+  d0:	31 97       	sbiw	r30, 0x01	; 1
+  d2:	f1 f7       	brne	.-4      	; 0xd0 <main+0x32>
+  d4:	00 c0       	rjmp	.+0      	; 0xd6 <main+0x38>
+  d6:	00 00       	nop
+  d8:	2f 5f       	subi	r18, 0xFF	; 255
+  da:	3f 4f       	sbci	r19, 0xFF	; 255
+  dc:	82 17       	cp	r24, r18
+  de:	93 07       	cpc	r25, r19
+  e0:	a9 f7       	brne	.-22     	; 0xcc <main+0x2e>
+			_delay_ms(1);}
+			
+			PORTD = (1<<3)|(1<<4);
+  e2:	02 bb       	out	0x12, r16	; 18
+  e4:	ff ef       	ldi	r31, 0xFF	; 255
+  e6:	24 e3       	ldi	r18, 0x34	; 52
+  e8:	3c e0       	ldi	r19, 0x0C	; 12
+  ea:	f1 50       	subi	r31, 0x01	; 1
+  ec:	20 40       	sbci	r18, 0x00	; 0
+  ee:	30 40       	sbci	r19, 0x00	; 0
+  f0:	e1 f7       	brne	.-8      	; 0xea <main+0x4c>
+  f2:	00 c0       	rjmp	.+0      	; 0xf4 <main+0x56>
+  f4:	00 00       	nop
+			_delay_ms(1000);
+			
+			PORTD = (1<<6)|(1<<7);
+  f6:	12 bb       	out	0x12, r17	; 18
+			for(int k=0 ; k<1000-value ; k++){
+  f8:	9e 01       	movw	r18, r28
+  fa:	28 1b       	sub	r18, r24
+  fc:	39 0b       	sbc	r19, r25
+  fe:	12 16       	cp	r1, r18
+ 100:	13 06       	cpc	r1, r19
+ 102:	cc f6       	brge	.-78     	; 0xb6 <main+0x18>
+ 104:	80 e0       	ldi	r24, 0x00	; 0
+ 106:	90 e0       	ldi	r25, 0x00	; 0
+ 108:	e7 ee       	ldi	r30, 0xE7	; 231
+ 10a:	f3 e0       	ldi	r31, 0x03	; 3
+ 10c:	31 97       	sbiw	r30, 0x01	; 1
+ 10e:	f1 f7       	brne	.-4      	; 0x10c <main+0x6e>
+ 110:	00 c0       	rjmp	.+0      	; 0x112 <main+0x74>
+ 112:	00 00       	nop
+ 114:	01 96       	adiw	r24, 0x01	; 1
+ 116:	82 17       	cp	r24, r18
+ 118:	93 07       	cpc	r25, r19
+ 11a:	b1 f7       	brne	.-20     	; 0x108 <main+0x6a>
+ 11c:	cc cf       	rjmp	.-104    	; 0xb6 <main+0x18>
+
+0000011e <_exit>:
+ 11e:	f8 94       	cli
+
+00000120 <__stop_program>:
+ 120:	ff cf       	rjmp	.-2      	; 0x120 <__stop_program>
