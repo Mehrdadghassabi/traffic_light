@@ -2,7 +2,7 @@
  * tl.c
  *
  * Created: 06/26/2022 06:38:03 ب.ظ
- * Author : Ali
+ * Author : Mehrdad
  */ 
 
 #include <avr/io.h>
